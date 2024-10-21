@@ -213,6 +213,7 @@ struct name {
 #else
 #define N_PHONY		0		// No support for phony targets
 #endif
+#define N_INFERENCE	0x400	// Inference rule
 
 // List of rules to build a target
 struct rule {
@@ -346,6 +347,7 @@ void diagnostic(const char *msg, ...);
 void error(const char *msg, ...) NORETURN;
 void error_unexpected(const char *s) NORETURN;
 void error_in_inference_rule(const char *s) NORETURN;
+void error_not_allowed(const char *s, const char *t);
 void warning(const char *msg, ...);
 void *xmalloc(size_t len);
 void *xrealloc(void *ptr, size_t len);
