@@ -370,6 +370,7 @@ target:
 
 # $? contains prerequisites newer than target, file2 in this case
 # $^ has all prerequisites, file1 and file2
+mkdir make.tempdir && cd make.tempdir || exit 1
 touch -t 202206171200 file1
 touch -t 202206171201 target
 touch -t 202206171202 file2
@@ -380,7 +381,22 @@ target: file1 file2
 	@echo $?
 	@echo $^
 '
-rm -f target file1 file2
+cd .. || exit 1; rm -rf make.tempdir 2>/dev/null
+
+# $^ should include all direct prerequisites, even if they're
+# prerequisites of prerequisites,
+mkdir make.tempdir && cd make.tempdir || exit 1
+touch file1 file2
+testing "\$^ shows all direct prerequisites" \
+	"make -f -" \
+	"intermediate file1 file2\nintermediate file1 file2\n" "" '
+all: intermediate file1 file2
+	@echo $+
+	@echo $^
+intermediate: file2
+	@true
+'
+cd .. || exit 1; rm -rf make.tempdir 2>/dev/null
 
 # Phony targets are executed (once) even if a matching file exists.
 # A .PHONY target with no prerequisites is ignored.

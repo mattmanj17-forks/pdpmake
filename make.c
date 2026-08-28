@@ -373,11 +373,9 @@ make(struct name *np, int level)
 
 #if ENABLE_FEATURE_MAKE_EXTENSIONS || ENABLE_FEATURE_MAKE_POSIX_2024
 	// Reset flag to detect duplicate prerequisites
-	if (!(np->n_flag & N_DOUBLE)) {
-		for (rp = np->n_rule; rp; rp = rp->r_next) {
-			for (dp = rp->r_dep; dp; dp = dp->d_next) {
-				dp->d_name->n_flag &= ~N_MARK;
-			}
+	for (rp = np->n_rule; rp; rp = rp->r_next) {
+		for (dp = rp->r_dep; dp; dp = dp->d_next) {
+			dp->d_name->n_flag &= ~N_MARK;
 		}
 	}
 #endif
@@ -404,10 +402,6 @@ make(struct name *np, int level)
 			// A rule with no prerequisities is executed unconditionally.
 			if (!rp->r_dep)
 				dtim = np->n_tim;
-			// Reset flag to detect duplicate prerequisites
-			for (dp = rp->r_dep; dp; dp = dp->d_next) {
-				dp->d_name->n_flag &= ~N_MARK;
-			}
 		}
 #endif
 		for (dp = rp->r_dep; dp; dp = dp->d_next) {
@@ -453,6 +447,12 @@ make(struct name *np, int level)
 				rp->r_dep = rp->r_dep->d_next;
 				rp->r_cmd = NULL;
 			}
+		}
+#endif
+#if ENABLE_FEATURE_MAKE_EXTENSIONS || ENABLE_FEATURE_MAKE_POSIX_2024
+		// Reset flag to detect duplicate prerequisites
+		for (dp = rp->r_dep; dp; dp = dp->d_next) {
+			dp->d_name->n_flag &= ~N_MARK;
 		}
 #endif
 	}
